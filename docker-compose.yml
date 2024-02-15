@@ -6,6 +6,8 @@ services:
     volumes:
       - "./.docker/mongo:/data/db"
     restart: "on-failure"
+    networks:
+      - graylog_network
 
   opensearch:
     image: "opensearchproject/opensearch:2.4.0"
@@ -26,6 +28,8 @@ services:
     volumes:
       - "./.docker/opensearch:/usr/share/opensearch/data"
     restart: "on-failure"
+    networks:
+      - graylog_network
 
   graylog:
     hostname: "server"
@@ -47,22 +51,26 @@ services:
       GRAYLOG_ELASTICSEARCH_HOSTS: "http://opensearch:9200"
       GRAYLOG_MONGODB_URI: "mongodb://mongodb:27017/graylog"
     ports:
-      - "5044:5044/tcp" # Beats
-      - "5140:5140/udp" # Syslog
-      - "5140:5140/tcp" # Syslog
+      # - "5044:5044/tcp" # Beats
+      # - "5140:5140/udp" # Syslog
+      # - "5140:5140/tcp" # Syslog
       - "5555:5555/tcp" # RAW TCP
       - "5555:5555/udp" # RAW TCP
       - "9000:9000/tcp" # Server API
-      - "12201:12201/tcp" # GELF TCP
-      - "12201:12201/udp" # GELF UDP
+      # - "12201:12201/tcp" # GELF TCP
+      # - "12201:12201/udp" # GELF UDP
       #- "10000:10000/tcp" # Custom TCP port
       #- "10000:10000/udp" # Custom UDP port
-      - "13301:13301/tcp" # Forwarder data
-      - "13302:13302/tcp" # Forwarder config
+      # - "13301:13301/tcp" # Forwarder data
+      # - "13302:13302/tcp" # Forwarder config
     volumes:
       - "./.docker/graylog_data:/usr/share/graylog/data/data"
       - "./.docker/graylog_journal:/usr/share/graylog/data/journal"
       - "./config/graylog.conf:/usr/share/graylog/data/config/graylog.conf"
     restart: "on-failure"
-# networks:
-#   graylog:
+    networks:
+      - graylog_network
+
+networks:
+  graylog_network:
+    external: true
