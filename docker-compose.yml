@@ -12,7 +12,7 @@ services:
   opensearch:
     image: "opensearchproject/opensearch:2.4.0"
     environment:
-      - "OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g"
+      - "OPENSEARCH_JAVA_OPTS=${OPENSEARCH_JAVA_OPTS:--Xms1g -Xmx1g}"
       - "bootstrap.memory_lock=true"
       - "discovery.type=single-node"
       - "action.auto_create_index=false"
@@ -40,16 +40,16 @@ services:
       mongodb:
         condition: "service_started"
     working_dir: "/usr/share/graylog/data"
-    entrypoint: "/usr/bin/tini -- wait-for-it opensearch:9200 --  /docker-entrypoint.sh"
+    entrypoint: ${GRAYLOG_ENTRYPOINT}
     environment:
-      GRAYLOG_MESSAGE_JOURNAL_MAX_SIZE: 10gb
-      GRAYLOG_NODE_ID_FILE: "/usr/share/graylog/data/config/node-id"
+      GRAYLOG_MESSAGE_JOURNAL_MAX_SIZE: "${GRAYLOG_MESSAGE_JOURNAL_MAX_SIZE:-10gb}"
+      GRAYLOG_NODE_ID_FILE: "${GRAYLOG_NODE_ID_FILERA:-/usr/share/graylog/data/config/node-id}"
       GRAYLOG_PASSWORD_SECRET: "${GRAYLOG_PASSWORD_SECRET:?Please configure GRAYLOG_PASSWORD_SECRET in the .env file}"
       GRAYLOG_ROOT_PASSWORD_SHA2: "${GRAYLOG_ROOT_PASSWORD_SHA2:?Please configure GRAYLOG_ROOT_PASSWORD_SHA2 in the .env file}"
-      GRAYLOG_HTTP_BIND_ADDRESS: "0.0.0.0:9000"
-      GRAYLOG_HTTP_EXTERNAL_URI: "http://localhost:9000/"
-      GRAYLOG_ELASTICSEARCH_HOSTS: "http://opensearch:9200"
-      GRAYLOG_MONGODB_URI: "mongodb://mongodb:27017/graylog"
+      GRAYLOG_HTTP_BIND_ADDRESS: "${GRAYLOG_HTTP_BIND_ADDRESS:-0.0.0.0:9000}"
+      GRAYLOG_HTTP_EXTERNAL_URI: "${GRAYLOG_HTTP_EXTERNAL_URI:-http://localhost:9000/}"
+      GRAYLOG_ELASTICSEARCH_HOSTS: "${GRAYLOG_ELASTICSEARCH_HOSTS:-http://opensearch:9200}"
+      GRAYLOG_MONGODB_URI: "${GRAYLOG_MONGODB_URI:-mongodb://mongodb:27017/graylog}"
     ports:
       # - "5044:5044/tcp" # Beats
       # - "5140:5140/udp" # Syslog
